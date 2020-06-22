@@ -1,0 +1,5 @@
+{
+	"input_path":"",
+	"output_path":"",
+	"portal_width":""
+}
