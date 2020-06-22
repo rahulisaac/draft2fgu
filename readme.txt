@@ -26,7 +26,15 @@ portal_width
 	* For example, if your grid has 200px and you specify "20%", your doors will have a depth of 40px
 	* Decimals are fine. For example, if you want a width of 1/8th of a square, specify "12.5%" 
 	* Alternaively, instead of a percent, you can specify an absolute value. If you want it to be exactly 50 pixels, specify "50px"
-	* Empty quotes "" will result in a default value of 25%
+	* Empty quotes "" will result in a default value of "25%"
+	
+portal_length
+	* The additional length added to all doors in your map to overlap them with adjacent walls, so there is no LOS gap
+	* This can be defined as a percent of a grid square or as an absolute pixel value
+	* For example, if your grid has 200px and you specify "2%", your doors will have an overlap of 4px will the walls on either side
+	* Decimals are fine. For example, if you want a width of 1/8th of a square, specify "12.5%" 
+	* Alternaively, instead of a percent, you can specify an absolute value. If you want it to be exactly 50 pixels, specify "50px"
+	* Empty quotes "" will result in a default value of "0px"
 
 The script makes no attempt to correct bad parameters, so please format them exactly as written in the instructions. 
 If the file "config.txt" is not present in the same directory, the default values are use.
@@ -39,14 +47,15 @@ YOU WILL NEED TO MODIFY FILE PATHS TO POIN TO VALID LOCATIONS ON YOUR COMPUTER
 {
 	"input_path":"C:\Users\my_user_name\Documents\dnd",
 	"output_path":"C:\Users\my_user_name\AppData\Roaming\SmiteWorks\Fantasy Grounds\campaigns\OneShot\images",
-	"portal_width":"12.5%"
+	"portal_width":"12.5%",
+	"portal_lenght":"2%"
 }
 
 2.
 
 {
-	"",
-	"",
+	"input_path":"",
+	"output_path":"",
 	"portal_width":"40px"
 }
 
