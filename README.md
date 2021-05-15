@@ -3,6 +3,10 @@ Script to convert LOS data from Dungeondraft's .dd2vtt files to into a usable fo
 
 You can run the file in any directory with .dd2vtt files. It will output a .png file and a .xml file in the same directory. 
 
+## Differentiating Doors and Windows
+
+In Dungeondraft, if a portal is placed to "Allow Light", the portal will be converted as a window. If place to "Block Light", the portal will be converted as a door.
+
 ## How to use this script:
 
 1. Export your Dungoendraft map in the .dd2vtt format
