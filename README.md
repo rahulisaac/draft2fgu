@@ -1,11 +1,11 @@
 # draft2fgu
-Script to convert LOS data from Dungeondraft's .dd2vtt files to into a usable format for Fantasy Grounds Unity
+Script to convert LOS data from Dungeondraft's .dd2vtt files to into a usable format for Fantasy Grounds Unity (FGU)
 
 You can either convert individual files, or you can run the file in any directory with .dd2vtt files.
 
 ## How to (simply) use this script:
 
-1. Export your Dungoendraft map in the .dd2vtt format
+1. Export your Dungeondraft map in the .dd2vtt format
 2. Place the script/executable in the same folder as your .dd2vtt file (or files)
 3. Run the script (just double click on the executable)
 4. Voila! Your .png & .xml files have been created and are in the same folder. It will do this for all .dd2vtt files in the folder. 
@@ -48,6 +48,8 @@ optional arguments:
 
 If you specify filenames to convert, the output will be in the same directory as the input file, unless you have also specified `--output`.
 If you have specified filenames to convert, the `--input` parameter is ignored.
+
+If you do not specify any filenames to convert, this will scan the `INPUT` directory for `.dd2vtt` files.  If `INPUT` is not specified, the current directory will be used.
 
 Parameters specified on the command-line supercede those in the `config.txt` file described below.
 
@@ -114,3 +116,11 @@ Below are some valid examples of what you could put in the "config.txt" file
 	"portal_width":""
 }
 ```
+
+# Acknowledgements
+
+[Dungeondraft](https://dungeondraft.net/) is a map drawing tool.  Dungeondraft is produced by Megasploot.
+
+[Fantasy Grounds Unity](https://www.fantasygrounds.com) is a Virtual TableTop program for playing many different table-top Role Playing Games (TTRPG), virtually.  FGU is produced by SmiteWorks USA LLC.
+
+draft2vtt.py is not endorsed by either of these companies, it is a community-effort to make these two programs interoperable.
