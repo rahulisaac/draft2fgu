@@ -107,6 +107,10 @@ def convert_to_fgu(filename, input_path, output_path, portal_width, portal_lengt
 
         occluders.append(occluder)
 
+    gridsize = Element('gridsize')
+    gridsize.text = str(ppg) + ',' + str(ppg)
+    root.append(gridsize)
+
     with open(join(output_path, f'{filename}.xml'), 'wb') as f:
         f.write(tostring(root))
 

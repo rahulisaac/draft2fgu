@@ -6,6 +6,7 @@ You can run the file in any directory with .dd2vtt files. It will output a .png 
 ## How to use this script:
 
 1. Export your Dungoendraft map in the .dd2vtt format
+    - You should turn off Grid in the export as you want FGU to draw the grid, if the GM wishes
 2. Place the script/executable in the same folder as your .dd2vtt file (or files)
 3. Run the script (just double click on the executable)
 4. Voila! Your .png & .xml files have been created and are in the same folder. It will do this for all .dd2vtt files in the folder. 
