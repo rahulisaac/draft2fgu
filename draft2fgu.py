@@ -1,29 +1,33 @@
 #!/usr/bin/env python3
 
 import argparse 
-from json import load, loads
 from base64 import decodebytes
-from xml.etree.ElementTree import Element, tostring
+from json import load, loads
+from math import sin, cos
 from os import listdir, getcwd, path
 from os.path import isfile, join
 from pathlib import Path
 import sys
-from math import sin, cos
+from xml.etree.ElementTree import Element, tostring
 
 
-def convert_to_fgu(filename, output_path, portal_width, portal_length, force, verbose):
+def convert_to_fgu(filename, output_path, portal_width, portal_length, args):
     dd2vttPath = Path(filename)
 
-    if verbose:
+    if args.verbose:
         print(f'Converting {dd2vttPath}')
         
     pngPath = Path.joinpath(output_path, filename.with_suffix('.png').name)
+    jpgPath = Path.joinpath(output_path, filename.with_suffix('.jpg').name)
     xmlPath = Path.joinpath(output_path, filename.with_suffix('.xml').name)
     
-    if pngPath.exists() and not force:
+    if pngPath.exists() and not args.force:
         print(f'Not overwriting {pngPath}', file=sys.stderr)
         return
-    if xmlPath.exists() and not force:
+    if jpgPath.exists() and args.jpeg and not args.force:
+        print(f'Not overwriting {jpgPath}', file=sys.stderr)
+        return
+    if xmlPath.exists() and not args.force:
         print(f'Not overwriting {xmlPath}', file=sys.stderr)
         return
 
@@ -127,20 +131,29 @@ def convert_to_fgu(filename, output_path, portal_width, portal_length, force, ve
 
         occluders.append(occluder)
 
-    if verbose:
+    if args.verbose:
         print('  {} occluders'.format(len(occluders)))
 
     with xmlPath.open('wb') as f:
         f.write(tostring(root))
 
-    if verbose:
+    if args.verbose:
         print(f'  Wrote {xmlPath}')
 
     with pngPath.open('wb') as f:
         f.write(decodebytes(file['image'].encode('utf-8')))
 
-    if verbose:
+    if args.verbose:
         print(f'  Wrote {pngPath}')
+
+    if args.jpeg:
+        from PIL import Image
+        imag = Image.open(pngPath)
+        rgb_imag = imag.convert('RGB')
+        rgb_imag.save(jpgPath)
+
+        if args.verbose:
+            print(f'  Wrote {jpgPath}')
 
 def init_argparse() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -158,6 +171,9 @@ def init_argparse() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         '-i', '--input', help='Path to the input directory'
+    )
+    parser.add_argument(
+        '--jpeg', '--jpg', help='Write the image as a .jpg file', action='store_true'
     )
     parser.add_argument(
         '-o', '--output', help='Path to the output directory'
@@ -229,7 +245,7 @@ def main() -> None:
                 dd2vtt_files.append( (f, output_path) )
 
     for filename, fileOutputPath in dd2vtt_files:
-        convert_to_fgu(filename, fileOutputPath, portal_width, portal_length, args.force, args.verbose)
+        convert_to_fgu(filename, fileOutputPath, portal_width, portal_length, args)
 
 if __name__ == '__main__':
     main()

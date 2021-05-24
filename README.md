@@ -28,6 +28,7 @@ optional arguments:
   --version             show program's version number and exit
   -i INPUT, --input INPUT
                         Path to the input directory
+  --jpeg, --jpg         Write the image as a .jpg file
   -o OUTPUT, --output OUTPUT
                         Path to the output directory
   --portallength PORTALLENGTH
@@ -41,6 +42,7 @@ optional arguments:
 | -f             | Overwrite the destination files even if they already exist |
 | -v             | Display the names of the converted files and some statistics |
 | -i INPUT       | Specify the directory to look in for *.dd2vtt files |
+| --jpeg         | Also output the map as a .jpg file |
 | -o OUTPUT      | Specify the directory to write the output .png and .xml files |
 | --portallength | The additional length added to all doors in your map to overlap them with adjacent walls, so there is no LOS gap |
 | --portalwidth  | The depth of all doors in your map |
