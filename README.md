@@ -1,16 +1,57 @@
 # draft2fgu
-Script to convert LOS data from Dungeondraft's .dd2vtt files to into a usable format for Fantasy Grounds Unity
+Script to convert LOS data from Dungeondraft's .dd2vtt files to into a usable format for Fantasy Grounds Unity (FGU)
 
-You can run the file in any directory with .dd2vtt files. It will output a .png file and a .xml file in the same directory. 
+You can either convert individual files, or you can run the file in any directory with .dd2vtt files.
 
-## How to use this script:
+## How to (simply) use this script:
 
-1. Export your Dungoendraft map in the .dd2vtt format
+1. Export your Dungeondraft map in the .dd2vtt format
 2. Place the script/executable in the same folder as your .dd2vtt file (or files)
 3. Run the script (just double click on the executable)
 4. Voila! Your .png & .xml files have been created and are in the same folder. It will do this for all .dd2vtt files in the folder. 
 5. Place these in your "Fantasy Grounds\campaigns\{campaign name}\images" folder and import in FGU as normal.
 
+## Command-line
+```
+usage: draft2fgu.py [OPTIONS] [FILES]
+
+Convert Dungeondraft .dd2vtt files to .png/.xml for Fantasy Grounds Unity
+(FGU)
+
+positional arguments:
+  files                 Files to convert to .png + .xml for FGU
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -f, --force           Force overwrite destination files
+  -v, --verbose         Display progress
+  --version             show program's version number and exit
+  -i INPUT, --input INPUT
+                        Path to the input directory
+  -o OUTPUT, --output OUTPUT
+                        Path to the output directory
+  --portallength PORTALLENGTH
+                        Specify the length of portals
+  --portalwidth PORTALWIDTH
+                        Specify the width of portals
+```
+
+|Option          |Description|
+|----------------|-----------|
+| -f             | Overwrite the destination files even if they already exist |
+| -v             | Display the names of the converted files and some statistics |
+| -i INPUT       | Specify the directory to look in for *.dd2vtt files |
+| -o OUTPUT      | Specify the directory to write the output .png and .xml files |
+| --portallength | The additional length added to all doors in your map to overlap them with adjacent walls, so there is no LOS gap |
+| --portalwidth  | The depth of all doors in your map |
+| FILES          | The names of the files to convert |
+
+If you specify filenames to convert, the output will be in the same directory as the input file, unless you have also specified `--output`.
+If you have specified filenames to convert, the `--input` parameter is ignored.
+
+If you do not specify any filenames to convert, this will scan the `INPUT` directory for `.dd2vtt` files.  If `INPUT` is not specified, the current directory will be used.
+
+Parameters specified on the command-line supercede those in the `config.txt` file described below.
 
 ## Modifying the default behavior
 If you want to modify the default behavior, you can modify the parameters in the "config.txt" file:
@@ -75,3 +116,11 @@ Below are some valid examples of what you could put in the "config.txt" file
 	"portal_width":""
 }
 ```
+
+# Acknowledgements
+
+[Dungeondraft](https://dungeondraft.net/) is a map drawing tool.  Dungeondraft is produced by Megasploot.
+
+[Fantasy Grounds Unity](https://www.fantasygrounds.com) is a Virtual TableTop program for playing many different table-top Role Playing Games (TTRPG), virtually.  FGU is produced by SmiteWorks USA LLC.
+
+draft2vtt.py is not endorsed by either of these companies, it is a community-effort to make these two programs interoperable.
