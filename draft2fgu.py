@@ -1,6 +1,6 @@
 from json import load, loads
 from base64 import decodebytes
-from xml.etree.ElementTree import Element, tostring
+from xml.etree.ElementTree import Element, tostring,indent
 from os import listdir, getcwd, path
 from os.path import isfile, join
 from math import sin, cos
@@ -50,9 +50,18 @@ def convert_to_fgu(filename, input_path, output_path, portal_width, portal_lengt
 
         occular_list.append(door_dict)
 
+    def translatePos(pos, dim):
+        return pos * ppg + (dim * ppg) // 2
+
+    def translateXPos(pos):
+        return translatePos(pos, -x_dim)
+
+    def translateYPos(pos):
+        return translatePos(-pos, y_dim)
+
     for occular in occular_list:
-        x_trans = [x * ppg - (x_dim * ppg) // 2 for x in occular['x']]
-        y_trans = [-y * ppg + (y_dim * ppg) // 2 for y in occular['y']]
+        x_trans = [translateXPos(x) for x in occular['x']]
+        y_trans = [translateYPos(y) for y in occular['y']]
 
         if occular['type'] == 'door':
             epsilon_w_x = epsilon_w * sin(occular['rotation'])
@@ -81,7 +90,29 @@ def convert_to_fgu(filename, input_path, output_path, portal_width, portal_lengt
                        y_trans[0] + epsilon_w_y]
         occular['coords'] = [a for item in zip(x_trans, y_trans) for a in item]
 
-    root = Element('root')
+    # Build the list of lights
+    def convertLights():
+        light_list = list()
+
+        for light in file['lights']:
+            light_dict = dict()
+
+            light_dict['color'] = light['color']
+            light_dict['shadows'] = True
+            light_dict['x'] = translateXPos(light['position']['x'])
+            light_dict['y'] = translateYPos(light['position']['y'])
+            light_dict['range'] = light['range']
+            light_dict['intensity'] = 1
+
+            light_list.append(light_dict)
+
+        return light_list
+
+    light_list = convertLights()
+
+    # Assemble the XML parts
+    root = Element('root', attrib={ 'version': '4.1', 'dataversion': '20210302' })
+
     occluders = Element('occluders')
     root.append(occluders)
 
@@ -107,8 +138,36 @@ def convert_to_fgu(filename, input_path, output_path, portal_width, portal_lengt
 
         occluders.append(occluder)
 
+    lights = Element('lights')
+    root.append(lights)
+
+    for id_, object_ in enumerate(light_list):
+        light = Element('light')
+
+        id_number = Element('id')
+        id_number.text = str(id_)
+        light.append(id_number)
+
+        position = Element('position')
+        position.text = str(object_['x']) + ',' + str(object_['y'])
+        light.append(position)
+
+        range = Element('range')
+        range.text = str(object_['range']) + ',.75,' + str(object_['range'] * 2) + ',0.5'
+        light.append(range)
+
+        color = Element('color')
+        color.text = '#' + object_['color']
+        light.append(color)
+
+        on = Element('on')
+        light.append(on)
+
+        lights.append(light)
+        
     with open(join(output_path, f'{filename}.xml'), 'wb') as f:
-        f.write(tostring(root))
+        indent(root)
+        f.write(tostring(root, encoding='utf-8'))
 
     with open(join(output_path, f'{filename}.png'), 'wb') as f:
         f.write(decodebytes(file['image'].encode('utf-8')))
