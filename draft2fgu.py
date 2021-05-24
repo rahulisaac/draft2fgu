@@ -1,13 +1,33 @@
+#!/usr/bin/env python3
+
+import argparse 
 from json import load, loads
 from base64 import decodebytes
 from xml.etree.ElementTree import Element, tostring
 from os import listdir, getcwd, path
 from os.path import isfile, join
+from pathlib import Path
+import sys
 from math import sin, cos
 
 
-def convert_to_fgu(filename, input_path, output_path, portal_width, portal_length):
-    with open(join(input_path, f'{filename}.dd2vtt')) as f:
+def convert_to_fgu(filename, output_path, portal_width, portal_length, force, verbose):
+    dd2vttPath = Path(filename)
+
+    if verbose:
+        print(f'Converting {dd2vttPath}')
+        
+    pngPath = Path.joinpath(output_path, filename.with_suffix('.png').name)
+    xmlPath = Path.joinpath(output_path, filename.with_suffix('.xml').name)
+    
+    if pngPath.exists() and not force:
+        print(f'Not overwriting {pngPath}', file=sys.stderr)
+        return
+    if xmlPath.exists() and not force:
+        print(f'Not overwriting {xmlPath}', file=sys.stderr)
+        return
+
+    with dd2vttPath.open(mode='r') as f:
         file = load(f)
 
     ppg = file['resolution']['pixels_per_grid']
@@ -20,7 +40,7 @@ def convert_to_fgu(filename, input_path, output_path, portal_width, portal_lengt
         elif string_val[-2:] == 'px':
             num = float(string_val[:-2]) / 2
         else:
-            raise ValueError("Invalid input")
+            raise ValueError('Invalid input')
         return num
 
     epsilon_w = parse_string_to_number(portal_width)
@@ -107,31 +127,109 @@ def convert_to_fgu(filename, input_path, output_path, portal_width, portal_lengt
 
         occluders.append(occluder)
 
-    with open(join(output_path, f'{filename}.xml'), 'wb') as f:
+    if verbose:
+        print('  {} occluders'.format(len(occluders)))
+
+    with xmlPath.open('wb') as f:
         f.write(tostring(root))
 
-    with open(join(output_path, f'{filename}.png'), 'wb') as f:
+    if verbose:
+        print(f'  Wrote {xmlPath}')
+
+    with pngPath.open('wb') as f:
         f.write(decodebytes(file['image'].encode('utf-8')))
 
+    if verbose:
+        print(f'  Wrote {pngPath}')
 
-input_path = getcwd()
-output_path = getcwd()
-portal_width = '25%'
-portal_length = '0px'
+def init_argparse() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        usage='%(prog)s [OPTIONS] [FILES]',
+        description='Convert Dungeondraft .dd2vtt files to .png/.xml for Fantasy Grounds Unity (FGU)'
+    )
+    parser.add_argument(
+        '-f', '--force', help='Force overwrite destination files', action='store_true'
+    )
+    parser.add_argument(
+        '-v', '--verbose', help='Display progress', action='store_true'
+    )
+    parser.add_argument(
+        '--version', action='version', version=f'{parser.prog} version 4.0.0'
+    )
+    parser.add_argument(
+        '-i', '--input', help='Path to the input directory'
+    )
+    parser.add_argument(
+        '-o', '--output', help='Path to the output directory'
+    )
+    parser.add_argument(
+        '--portallength', help='Specify the length of portals'
+    )
+    parser.add_argument(
+        '--portalwidth', help='Specify the width of portals'
+    )
 
-if path.exists('config.txt'):
-    with open('config.txt') as f:
-        config = loads(f.read().replace('\\', '/'))
+    parser.add_argument('files', nargs='*', help="Files to convert to .png + .xml for FGU")
+    return parser
 
-    if config.get('input_path', '') != '':
-        input_path = config['input_path']
-    if config.get('output_path', '') != '':
-        output_path = config['output_path']
-    if config.get('portal_width', '') != '':
-        portal_width = config['portal_width']
-    if config.get('portal_length', '') != '':
-        portal_length = config['portal_width']
+def main() -> None:
+    input_path = Path.cwd()
+    output_path = Path.cwd()
+    portal_width = '25%'
+    portal_length = '0px'
 
-dd2vtt_files = [f[:-7] for f in listdir(input_path) if f.endswith('.dd2vtt')]
-for filename in dd2vtt_files:
-    convert_to_fgu(filename, input_path, output_path, portal_width, portal_length)
+    configPath = Path('config.txt')
+    if configPath.exists():
+        with configPath.open(mode='r') as f:
+            config = loads(f.read().replace('\\', '/'))
+
+        if config.get('input_path', '') != '':
+            input_path = config['input_path']
+        if config.get('output_path', '') != '':
+            output_path = config['output_path']
+        if config.get('portal_width', '') != '':
+            portal_width = config['portal_width']
+        if config.get('portal_length', '') != '':
+            portal_length = config['portal_width']
+
+    parser = init_argparse()
+    args = parser.parse_args()
+
+    if args.input:
+        input_path = Path(args.input)
+    if args.output:
+        output_path = Path(args.output)
+    if args.portalwidth:
+        portal_width = args.portalwidth
+    if args.portallength:
+        portal_length = args.portallength
+
+    if input_path:
+        if not input_path.is_dir():
+            sys.exit( f'{input_path} is not a directory' )
+
+    if output_path:
+        if not output_path.is_dir():
+            sys.exit( f'{output_path} is not a directory' )
+
+    dd2vtt_files = []
+
+    if args.files:
+        for f in args.files:
+            if not output_path:
+                # Filename was specified, but no output_path
+                dd2vtt_files.append( (Path(f), Path(f).parent) )
+            else:
+                # Filename was specified and an output_path
+                dd2vtt_files.append( (Path(f), output_path))
+    else:
+        for f in input_path.iterdir():
+            if f.suffix == '.dd2vtt':
+                # Filename found in the input_path, send to the output_path
+                dd2vtt_files.append( (f, output_path) )
+
+    for filename, fileOutputPath in dd2vtt_files:
+        convert_to_fgu(filename, fileOutputPath, portal_width, portal_length, args.force, args.verbose)
+
+if __name__ == '__main__':
+    main()
