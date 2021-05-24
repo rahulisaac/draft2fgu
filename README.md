@@ -1,11 +1,12 @@
 # draft2fgu
-Script to convert LOS data from Dungeondraft's .dd2vtt files to into a usable format for Fantasy Grounds Unity
+Script to convert LOS data from Dungeondraft's .dd2vtt files to into a usable format for Fantasy Grounds Unity (FGU)
 
 You can run the file in any directory with .dd2vtt files. It will output a .png file and a .xml file in the same directory. 
 
 ## How to use this script:
 
-1. Export your Dungoendraft map in the .dd2vtt format
+1. Export your Dungeondraft map in the .dd2vtt format
+    - You should turn off Lighting in the export as you want FGU to draw the lighting effects
 2. Place the script/executable in the same folder as your .dd2vtt file (or files)
 3. Run the script (just double click on the executable)
 4. Voila! Your .png & .xml files have been created and are in the same folder. It will do this for all .dd2vtt files in the folder. 
